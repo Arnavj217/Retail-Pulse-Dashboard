@@ -14,19 +14,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+if "sidebar_open" not in st.session_state:
+    st.session_state.sidebar_open = True
+
 # =====================================================
 # CUSTOM MODERN & HIGH-CONTRAST CSS (THEME-AWARE)
 # =====================================================
-st.markdown("""
+sidebar_width = "250px" if st.session_state.sidebar_open else "70px"
+
+st.markdown(f"""
 <style>
 /* Hide default boilerplate elements */
-
-#MainMenu {visibility:hidden;}
-footer {visibility:hidden;}
-header {visibility:hidden;}
+#MainMenu {{visibility:hidden;}}
+footer {{visibility:hidden;}}
+header {{visibility:hidden;}}
 
 /* High-contrast and reactive modern metric cards */
-.metric-card {
+.metric-card {{
     background-color: var(--background-color);
     border: 1px solid rgba(128, 128, 128, 0.2);
     padding: 22px;
@@ -34,63 +38,71 @@ header {visibility:hidden;}
     box-shadow: 0px 4px 20px rgba(0,0,0,0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     margin-bottom: 15px;
-}
+}}
 
-.metric-card:hover {
+.metric-card:hover {{
     transform: translateY(-4px);
     box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
     border-color: #3B82F6;
-}
+}}
 
 /* Bold Titles & Subtitles with stark contrast */
-.dashboard-title {
+.dashboard-title {{
     font-size: 38px;
     font-weight: 800;
     color: var(--text-color);
     letter-spacing: -0.5px;
     margin-bottom: 5px;
-}
+}}
 
-.dashboard-subtitle {
+.dashboard-subtitle {{
     color: #3B82F6; /* High contrast energetic blue */
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 25px;
-}
+}}
 
 /* Custom styled Large Sidebar Components */
-.sidebar-title {
+.sidebar-title {{
     color: #FFFFFF !important;
     text-align: center;
     font-size: 34px; /* Increased size */
     font-weight: 800;
     letter-spacing: 0.5px;
-}
+}}
 
-.sidebar-subtitle {
+.sidebar-subtitle {{
     color: #60A5FA !important; /* Vivid light blue */
     text-align: center;
     font-size: 15px; /* Increased size */
     font-weight: 600;
     margin-top: 5px;
-}
+}}
+
+/* Dynamic Sidebar Sizing */
+[data-testid="stSidebar"] {{
+    background-color:#1E293B !important;
+    min-width:{sidebar_width} !important;
+    max-width:{sidebar_width} !important;
+    transition:all .35s ease;
+}}
+
+.main .block-container {{
+    transition:all .35s ease;
+}}
 
 /* Enhancing Streamlit native Radio font sizing in Sidebar */
-[data-testid="stSidebar"] {
-    background-color: #1E293B; !important;
-    min-width: 320px !important;
-}
-[data-testid="stSidebar"] .stRadio label {
+[data-testid="stSidebar"] .stRadio label {{
     font-size: 17px !important; /* Larger text for navigation */
     font-weight: 500 !important;
     color: #F3F4F6 !important;
     padding: 8px 0px;
-}
+}}
 
 /* Status Indicator Colors */
-.text-high-risk { color: #EF4444 !important; font-weight: bold; font-size: 20px; }
-.text-med-risk { color: #F59E0B !important; font-weight: bold; font-size: 20px; }
-.text-safe { color: #10B981 !important; font-weight: bold; font-size: 20px; }
+.text-high-risk {{ color: #EF4444 !important; font-weight: bold; font-size: 20px; }}
+.text-med-risk {{ color: #F59E0B !important; font-weight: bold; font-size: 20px; }}
+.text-safe {{ color: #10B981 !important; font-weight: bold; font-size: 20px; }}
 
 </style>
 """, unsafe_allow_html=True)
@@ -103,7 +115,6 @@ DATA_PATH = BASE_DIR / "data"
 
 @st.cache_data
 def load_data():
-
     cleaned_df = pd.read_csv(DATA_PATH / "cleaned_retail.csv")
     segments = pd.read_csv(DATA_PATH / "customer_segments.csv")
     churn = pd.read_csv(DATA_PATH / "customer_churn.csv")
@@ -120,32 +131,78 @@ cleaned_df, segments, churn, forecast, inventory = load_data()
 # =====================================================
 # SIDEBAR NAVIGATION
 # =====================================================
+col1, col2 = st.columns([1, 15])
+
+with col1:
+    # Hamburger Button
+    if st.button("☰"):
+        st.session_state.sidebar_open = not st.session_state.sidebar_open
+        st.rerun()
+
 st.sidebar.markdown(
 """
 <div class='sidebar-title'>📊 RetailPulse</div>
-<div class='sidebar-subtitle'>AI-Powered Analytics Suite</div>
 <br><hr style="border-color: rgba(255,255,255,0.15)">
 """,
 unsafe_allow_html=True
 )
 
 with st.sidebar:
+    if st.session_state.sidebar_open:
+        page = st.radio(
+            "Navigation",
+            [
+                "🏠 Executive Summary",
+                "📈 Sales Analytics",
+                "👥 Customer Segmentation",
+                "🔮 Demand Forecasting",
+                "⚠️ Churn Prediction",
+                "📦 Inventory Optimization"
+            ]
+        )
+    else:
+        page = st.radio(
+            "",
+            [
+                "🏠",
+                "📈",
+                "👥",
+                "🔮",
+                "⚠️",
+                "📦"
+            ]
+        )
 
+    page_map = {
+        "🏠": "🏠 Executive Summary",
+        "📈": "📈 Sales Analytics",
+        "👥": "👥 Customer Segmentation",
+        "🔮": "🔮 Demand Forecasting",
+        "⚠️": "⚠️ Churn Prediction",
+        "📦": "📦 Inventory Optimization",
+        "🏠 Executive Summary": "🏠 Executive Summary",
+        "📈 Sales Analytics": "📈 Sales Analytics",
+        "👥 Customer Segmentation": "👥 Customer Segmentation",
+        "🔮 Demand Forecasting": "🔮 Demand Forecasting",
+        "⚠️ Churn Prediction": "⚠️ Churn Prediction",
+        "📦 Inventory Optimization": "📦 Inventory Optimization"
+    }
 
-    page = st.radio(
-        "Navigation",
-        [
-            "🏠 Executive Summary",
-            "📈 Sales Analytics",
-            "👥 Customer Segmentation",
-            "🔮 Demand Forecasting",
-            "⚠️ Churn Prediction",
-            "📦 Inventory Optimization"
-        ]
-    )
+    page = page_map[page]
 
-st.sidebar.markdown("<br><hr style='border-color: rgba(255,255,255,0.15)'>", unsafe_allow_html=True)
-st.sidebar.success("RetailPulse Engine Active🌍")
+    if st.session_state.sidebar_open:
+        st.sidebar.markdown("""
+        <div class='sidebar-subtitle'>AI-Powered Analytics Suite</div>
+        """, unsafe_allow_html=True)
+    else:
+        st.sidebar.markdown("""
+        <div style='text-align:center;font-size:30px'>
+        📊
+        </div>
+        """, unsafe_allow_html=True)
+        
+    st.sidebar.markdown("<br><hr style='border-color: rgba(255,255,255,0.15)'>", unsafe_allow_html=True)
+    st.sidebar.success("RetailPulse Engine Active🌍")
 
 # Helper function to inject responsive Plotly template styles
 def get_plotly_layout():
