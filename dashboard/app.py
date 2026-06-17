@@ -20,7 +20,7 @@ if "sidebar_open" not in st.session_state:
 # =====================================================
 # CUSTOM MODERN & HIGH-CONTRAST CSS (THEME-AWARE)
 # =====================================================
-sidebar_width = "250px" if st.session_state.sidebar_open else "70px"
+sidebar_width = "320px" if st.session_state.sidebar_open else "70px"
 
 st.markdown(f"""
 <style>
