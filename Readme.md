@@ -22,10 +22,10 @@
 ## 🌐 Live Demo
 
 🔗 **Streamlit Deployment:**
-https://retail-pulse-engine.streamlit.app/
+https://retail-pulse-dashboard.streamlit.app/
 
 📂 **GitHub Repository:**
-https://github.com/Aravj217/RetailPulse
+https://github.com/Arnavj217/Retail-Pulse-Dashboard
 
 ---
 
